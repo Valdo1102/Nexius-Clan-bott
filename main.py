@@ -410,77 +410,100 @@ def validate_clan_name(name):
 # Enhanced Commands
 @bot.command()
 async def help(ctx):
-    embed = discord.Embed(
-        title="🏰 Clan Bot - Command Guide",
-        color=discord.Color.blue(),
-        description="**Welcome to the Clan Bot!** Here are all available commands:"
-    )
+    try:
+        # First embed - User Commands
+        embed1 = discord.Embed(
+            title="🏰 Clan Bot - User Commands",
+            color=discord.Color.blue(),
+            description="**Welcome to the Clan Bot!** Here are user commands:"
+        )
 
-    # User Commands
-    user_commands = """
-    **🏆 Point & Clan Commands**
-    • `!mypoints` - View your total points
-    • `!myclan` - Check your assigned clan
-    • `!stats` - View detailed personal statistics
-    • `!pointlog` - See your recent point history
-    • `!achievements` - View your earned achievements
+        user_commands1 = """
+        **🏆 Point & Clan Commands**
+        • `!mypoints` - View your total points
+        • `!myclan` - Check your assigned clan
+        • `!stats` - View detailed personal statistics
+        • `!pointlog` - See your recent point history
+        • `!achievements` - View your earned achievements
+        """
 
-    **📊 Leaderboards & Info**
-    • `!leaderboard` - Top clan rankings
-    • `!userleaderboard` - Top individual users
-    • `!claninfo <clan>` - Detailed clan information
-    • `!clantop <clan>` - Top members in a clan
-    • `!clanmembers <clan>` - All members of a clan
-    • `!weekly` - Weekly clan performance comparison
+        user_commands2 = """
+        **📊 Leaderboards & Info**
+        • `!leaderboard` - Top clan rankings
+        • `!userleaderboard` - Top individual users
+        • `!claninfo <clan>` - Detailed clan information
+        • `!clantop <clan>` - Top members in a clan
+        • `!clanmembers <clan>` - All members of a clan
+        • `!weekly` - Weekly clan performance comparison
+        """
 
-    **🎯 Challenges & Shop**
-    • `!dailychallenge` - View today's daily challenge
-    • `!shop` - Browse available items
-    • `!purchase <item>` - Buy items with points
-    """
+        user_commands3 = """
+        **🎯 Challenges & Shop**
+        • `!dailychallenge` - View today's daily challenge
+        • `!shop` - Browse available items
+        • `!purchase <item>` - Buy items with points
+        """
 
-    # Admin Commands
-    admin_commands = """
-    **⚙️ Clan Management**
-    • `!createclan <name>` - Create a new clan
-    • `!assignclan @user <clan>` - Assign user to clan
-    • `!syncclans` - Sync clans with Discord roles
-    • `!setweeklycap <clan> <cap>` - Set weekly points cap for clan
+        embed1.add_field(name="Points & Clans", value=user_commands1, inline=False)
+        embed1.add_field(name="Leaderboards", value=user_commands2, inline=False)
+        embed1.add_field(name="Challenges", value=user_commands3, inline=False)
 
-    **👑 Point Management**
-    • `!addpoints @user <amount>` - Give points to user
-    • `!removepoints @user <amount>` - Remove points from user
-    • `!setbonusrole <role>` - Set role for +5 point bonus
+        # Second embed - Admin Commands
+        embed2 = discord.Embed(
+            title="🛠️ Clan Bot - Admin Commands",
+            color=discord.Color.red(),
+            description="**Admin-only commands:**"
+        )
 
-    **🔐 Permission System**
-    • `!addwhitelistrole <role>` - Allow role to assign clans
-    • `!removewhitelistrole <role>` - Remove role from whitelist
-    • `!listwhitelistroles` - Show whitelisted roles
+        admin_commands1 = """
+        **⚙️ Clan Management**
+        • `!createclan <name>` - Create a new clan
+        • `!assignclan @user <clan>` - Assign user to clan
+        • `!syncclans` - Sync clans with Discord roles
+        • `!setweeklycap <clan> <cap>` - Set weekly points cap
+        """
 
-    **🏪 Shop & Challenges**
-    • `!additem <name> <cost>` - Add item to shop
-    • `!setchallenge <points> <description>` - Set daily challenge
+        admin_commands2 = """
+        **👑 Point Management**
+        • `!addpoints @user <amount>` - Give points to user
+        • `!removepoints @user <amount>` - Remove points
+        • `!setbonusrole <role>` - Set role for +5 point bonus
+        """
 
-    **📊 Analytics & Management**
-    • `!backup` - Create manual database backup
-    • `!analytics [days]` - Show analytics report (1-30 days)
-    • `!botreport` - Show bot completion status
-    • `!setchannelmultiplier <#channel> <multiplier>` - Set channel point multiplier
-    • `!createseasonalevent <name> <start> <end> <multiplier>` - Create seasonal event
-    """
+        admin_commands3 = """
+        **🔐 Permission System**
+        • `!addwhitelistrole <role>` - Allow role to assign clans
+        • `!removewhitelistrole <role>` - Remove from whitelist
+        • `!listwhitelistroles` - Show whitelisted roles
+        """
 
-    embed.add_field(name="👥 User Commands", value=user_commands, inline=False)
-    embed.add_field(name="🛠️ Admin Commands", value=admin_commands, inline=False)
+        embed2.add_field(name="Clan Management", value=admin_commands1, inline=False)
+        embed2.add_field(name="Point Management", value=admin_commands2, inline=False)
+        embed2.add_field(name="Permissions", value=admin_commands3, inline=False)
 
-    embed.add_field(
-        name="💡 How It Works", 
-        value="• **Earn points** by sending messages (1 point per message, 5-second cooldown)\n• **Bonus roles** get +5 points per message\n• **Weekend bonus** gives 1.5x points\n• **Daily limit** of 500 points per user\n• **Clan limit** of 20,000 points per week", 
-        inline=False
-    )
+        # Third embed - How it works
+        embed3 = discord.Embed(
+            title="💡 How It Works",
+            color=discord.Color.green()
+        )
 
-    embed.set_footer(text="💬 All commands work as slash commands too! Use / instead of !")
+        how_it_works = """
+        • **Earn points** by sending messages (1 point per message, 5-second cooldown)
+        • **Bonus roles** get +5 points per message
+        • **Weekend bonus** gives 1.5x points
+        • **Daily limit** of 500 points per user
+        • **Clan limit** of 20,000 points per week
+        """
 
-    await ctx.send(embed=embed)
+        embed3.add_field(name="Point System", value=how_it_works, inline=False)
+        embed3.set_footer(text="💬 All commands work as slash commands too! Use / instead of !")
+
+        await ctx.send(embed=embed1)
+        await ctx.send(embed=embed2)
+        await ctx.send(embed=embed3)
+    except Exception as e:
+        logger.error(f"Error in help command: {e}")
+        await ctx.send("❌ An error occurred while displaying the help menu.", delete_after=10)
 
 @bot.command()
 async def mypoints(ctx):
@@ -500,7 +523,7 @@ async def mypoints(ctx):
         await ctx.send(embed=embed)
     except Exception as e:
         logger.error(f"Error in mypoints: {e}")
-        await ctx.send("❌ An error occurred while fetching your points.")
+        await ctx.send("❌ An error occurred while fetching your points.", delete_after=10)
 
 @tree.command(name="mypoints", description="Show your total earned points")
 async def slash_mypoints(interaction: discord.Interaction):
@@ -552,7 +575,7 @@ async def additem(ctx, name: str, cost: int):
         await ctx.send(f"✅ Item **{name}** costing **{cost}** points added!")
     except Exception as e:
         logger.error(f"Error adding item: {e}")
-        await ctx.send("❌ An error occurred while adding the item.")
+        await ctx.send("❌ An error occurred while adding the item.", delete_after=10)
 
 @bot.command()
 async def shop(ctx):
@@ -574,7 +597,7 @@ async def shop(ctx):
         await ctx.send(embed=embed)
     except Exception as e:
         logger.error(f"Error displaying shop: {e}")
-        await ctx.send("❌ An error occurred while loading the shop.")
+        await ctx.send("❌ An error occurred while loading the shop.", delete_after=10)
 
 @bot.command()
 async def purchase(ctx, *, item_name: str):
@@ -675,7 +698,7 @@ async def stats(ctx):
         await ctx.send(embed=embed)
     except Exception as e:
         logger.error(f"Error in stats: {e}")
-        await ctx.send("❌ An error occurred while fetching your stats.")
+        await ctx.send("❌ An error occurred while fetching your stats.", delete_after=10)
 
 @tree.command(name="stats", description="View your personal statistics")
 async def slash_stats(interaction: discord.Interaction):
@@ -1336,7 +1359,7 @@ async def slash_claninfo(interaction: discord.Interaction, clan: str):
 async def createclan(ctx, *, clan_name):
     validation_error = validate_clan_name(clan_name)
     if validation_error:
-        await ctx.send(f"❌ {validation_error}")
+        await ctx.send(f"❌ {validation_error}", delete_after=10)
         return
 
     try:
@@ -1344,7 +1367,7 @@ async def createclan(ctx, *, clan_name):
             c = conn.cursor()
             c.execute("SELECT name FROM clans WHERE name=?", (clan_name,))
             if c.fetchone():
-                await ctx.send(f"❌ Clan **{clan_name}** already exists!")
+                await ctx.send(f"❌ Clan **{clan_name}** already exists!", delete_after=10)
                 return
 
             role = await ctx.guild.create_role(
@@ -1359,10 +1382,10 @@ async def createclan(ctx, *, clan_name):
 
         await ctx.send(f"✅ Clan **{clan_name}** created successfully! Role {role.mention} has been created.")
     except discord.Forbidden:
-        await ctx.send("❌ I don't have permission to create roles! Please give me the 'Manage Roles' permission.")
+        await ctx.send("❌ I don't have permission to create roles! Please give me the 'Manage Roles' permission.", delete_after=15)
     except Exception as e:
         logger.error(f"Error creating clan: {e}")
-        await ctx.send(f"❌ Failed to create clan: {str(e)}")
+        await ctx.send(f"❌ Failed to create clan: {str(e)}", delete_after=10)
 
 @tree.command(name="createclan", description="Create a clan")
 @app_commands.checks.has_permissions(administrator=True)
@@ -1401,7 +1424,7 @@ async def slash_createclan(interaction: discord.Interaction, clan: str):
 @bot.command()
 async def assignclan(ctx, user: discord.Member, *, clan_name):
     if not is_user_whitelisted(ctx.author, ctx.guild):
-        await ctx.send("❌ You don't have permission to assign clan roles! You need to be an admin or have a whitelisted role.")
+        await ctx.send("❌ You don't have permission to assign clan roles! You need to be an admin or have a whitelisted role.", delete_after=10)
         return
 
     try:
@@ -1409,7 +1432,7 @@ async def assignclan(ctx, user: discord.Member, *, clan_name):
             c = conn.cursor()
             c.execute("SELECT name FROM clans WHERE name=?", (clan_name,))
             if not c.fetchone():
-                await ctx.send(f"❌ Clan **{clan_name}** does not exist!")
+                await ctx.send(f"❌ Clan **{clan_name}** does not exist!", delete_after=10)
                 return
 
             old_clan = get_user_clan(user.id)
@@ -1440,7 +1463,7 @@ async def assignclan(ctx, user: discord.Member, *, clan_name):
         await ctx.send(f"✅ {user.mention} has been successfully assigned to clan **{clan_name}**{role_msg}!")
     except Exception as e:
         logger.error(f"Error assigning clan: {e}")
-        await ctx.send("❌ An error occurred while assigning the clan.")
+        await ctx.send("❌ An error occurred while assigning the clan.", delete_after=10)
 
 @tree.command(name="assignclan", description="Assign a user to a clan")
 @app_commands.describe(user="The user to assign", clan="The clan name")
@@ -1493,21 +1516,21 @@ async def slash_assignclan(interaction: discord.Interaction, user: discord.Membe
 @commands.has_permissions(administrator=True)
 async def addpoints(ctx, user: discord.Member, amount: int):
     if amount <= 0:
-        await ctx.send("❌ Amount must be positive!")
+        await ctx.send("❌ Amount must be positive!", delete_after=10)
         return
     if amount > 10000:
-        await ctx.send("❌ Cannot add more than 10,000 points at once!")
+        await ctx.send("❌ Cannot add more than 10,000 points at once!", delete_after=10)
         return
 
     clan = get_user_clan(user.id, ctx.guild)
     if not clan:
-        await ctx.send(f"❌ {user.mention} is not in any clan!")
+        await ctx.send(f"❌ {user.mention} is not in any clan!", delete_after=10)
         return
 
     if not can_add_to_clan(clan, amount):
         current = get_clan_points(clan)
         max_points = get_max_clan_points()
-        await ctx.send(f"❌ Cannot add {amount} points. Clan **{clan}** has {current:,}/{max_points:,} points this week!")
+        await ctx.send(f"❌ Cannot add {amount} points. Clan **{clan}** has {current:,}/{max_points:,} points this week!", delete_after=15)
         return
 
     if add_points_to_clan_and_user(user.id, clan, amount, source="admin", channel_id=ctx.channel.id):
@@ -1518,7 +1541,7 @@ async def addpoints(ctx, user: discord.Member, amount: int):
         )
         await ctx.send(embed=embed)
     else:
-        await ctx.send("❌ Failed to add points. Please try again.")
+        await ctx.send("❌ Failed to add points. Please try again.", delete_after=10)
 
 @bot.command()
 @commands.has_permissions(administrator=True)
@@ -1569,7 +1592,7 @@ async def removepoints(ctx, user: discord.Member, amount: int):
         await ctx.send(embed=embed)
     except Exception as e:
         logger.error(f"Error removing points: {e}")
-        await ctx.send("❌ An error occurred while removing points.")
+        await ctx.send("❌ An error occurred while removing points.", delete_after=10)
 
 @tree.command(name="addpoints", description="Manually add points to a user")
 @app_commands.checks.has_permissions(administrator=True)
@@ -2101,11 +2124,11 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         return
     elif isinstance(error, commands.MissingPermissions):
-        await ctx.send("❌ You don't have permission to use this command!")
+        await ctx.send("❌ You don't have permission to use this command!", delete_after=10)
     elif isinstance(error, commands.BadArgument):
-        await ctx.send("❌ Invalid argument provided! Please check the command usage.")
+        await ctx.send("❌ Invalid argument provided! Please check the command usage.", delete_after=10)
     else:
-        await ctx.send("❌ An error occurred while processing the command.")
+        await ctx.send("❌ An error occurred while processing the command.", delete_after=10)
         logger.error(f"Command error: {error}")
 
 @tree.error
