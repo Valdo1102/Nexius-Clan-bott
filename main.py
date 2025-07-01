@@ -503,7 +503,7 @@ async def help(ctx):
         await ctx.send(embed=embed3)
     except Exception as e:
         logger.error(f"Error in help command: {e}")
-        await ctx.send("❌ An error occurred while displaying the help menu.", delete_after=10)
+        await ctx.send("❌ An error occurred while displaying the help menu.")
 
 @bot.command()
 async def mypoints(ctx):
@@ -523,7 +523,7 @@ async def mypoints(ctx):
         await ctx.send(embed=embed)
     except Exception as e:
         logger.error(f"Error in mypoints: {e}")
-        await ctx.send("❌ An error occurred while fetching your points.", delete_after=10)
+        await ctx.send("❌ An error occurred while fetching your points.")
 
 @tree.command(name="mypoints", description="Show your total earned points")
 async def slash_mypoints(interaction: discord.Interaction):
@@ -575,7 +575,7 @@ async def additem(ctx, name: str, cost: int):
         await ctx.send(f"✅ Item **{name}** costing **{cost}** points added!")
     except Exception as e:
         logger.error(f"Error adding item: {e}")
-        await ctx.send("❌ An error occurred while adding the item.", delete_after=10)
+        await ctx.send("❌ An error occurred while adding the item.")
 
 @bot.command()
 async def shop(ctx):
@@ -698,7 +698,7 @@ async def stats(ctx):
         await ctx.send(embed=embed)
     except Exception as e:
         logger.error(f"Error in stats: {e}")
-        await ctx.send("❌ An error occurred while fetching your stats.", delete_after=10)
+        await ctx.send("❌ An error occurred while fetching your stats.")
 
 @tree.command(name="stats", description="View your personal statistics")
 async def slash_stats(interaction: discord.Interaction):
@@ -1359,7 +1359,7 @@ async def slash_claninfo(interaction: discord.Interaction, clan: str):
 async def createclan(ctx, *, clan_name):
     validation_error = validate_clan_name(clan_name)
     if validation_error:
-        await ctx.send(f"❌ {validation_error}", delete_after=10)
+        await ctx.send(f"❌ {validation_error}")
         return
 
     try:
@@ -1367,7 +1367,7 @@ async def createclan(ctx, *, clan_name):
             c = conn.cursor()
             c.execute("SELECT name FROM clans WHERE name=?", (clan_name,))
             if c.fetchone():
-                await ctx.send(f"❌ Clan **{clan_name}** already exists!", delete_after=10)
+                await ctx.send(f"❌ Clan **{clan_name}** already exists!")
                 return
 
             role = await ctx.guild.create_role(
@@ -1382,10 +1382,10 @@ async def createclan(ctx, *, clan_name):
 
         await ctx.send(f"✅ Clan **{clan_name}** created successfully! Role {role.mention} has been created.")
     except discord.Forbidden:
-        await ctx.send("❌ I don't have permission to create roles! Please give me the 'Manage Roles' permission.", delete_after=15)
+        await ctx.send("❌ I don't have permission to create roles! Please give me the 'Manage Roles' permission.")
     except Exception as e:
         logger.error(f"Error creating clan: {e}")
-        await ctx.send(f"❌ Failed to create clan: {str(e)}", delete_after=10)
+        await ctx.send(f"❌ Failed to create clan: {str(e)}")
 
 @tree.command(name="createclan", description="Create a clan")
 @app_commands.checks.has_permissions(administrator=True)
@@ -1424,7 +1424,7 @@ async def slash_createclan(interaction: discord.Interaction, clan: str):
 @bot.command()
 async def assignclan(ctx, user: discord.Member, *, clan_name):
     if not is_user_whitelisted(ctx.author, ctx.guild):
-        await ctx.send("❌ You don't have permission to assign clan roles! You need to be an admin or have a whitelisted role.", delete_after=10)
+        await ctx.send("❌ You don't have permission to assign clan roles! You need to be an admin or have a whitelisted role.")
         return
 
     try:
@@ -1432,7 +1432,7 @@ async def assignclan(ctx, user: discord.Member, *, clan_name):
             c = conn.cursor()
             c.execute("SELECT name FROM clans WHERE name=?", (clan_name,))
             if not c.fetchone():
-                await ctx.send(f"❌ Clan **{clan_name}** does not exist!", delete_after=10)
+                await ctx.send(f"❌ Clan **{clan_name}** does not exist!")
                 return
 
             old_clan = get_user_clan(user.id)
@@ -1463,7 +1463,7 @@ async def assignclan(ctx, user: discord.Member, *, clan_name):
         await ctx.send(f"✅ {user.mention} has been successfully assigned to clan **{clan_name}**{role_msg}!")
     except Exception as e:
         logger.error(f"Error assigning clan: {e}")
-        await ctx.send("❌ An error occurred while assigning the clan.", delete_after=10)
+        await ctx.send("❌ An error occurred while assigning the clan.")
 
 @tree.command(name="assignclan", description="Assign a user to a clan")
 @app_commands.describe(user="The user to assign", clan="The clan name")
@@ -1516,21 +1516,21 @@ async def slash_assignclan(interaction: discord.Interaction, user: discord.Membe
 @commands.has_permissions(administrator=True)
 async def addpoints(ctx, user: discord.Member, amount: int):
     if amount <= 0:
-        await ctx.send("❌ Amount must be positive!", delete_after=10)
+        await ctx.send("❌ Amount must be positive!")
         return
     if amount > 10000:
-        await ctx.send("❌ Cannot add more than 10,000 points at once!", delete_after=10)
+        await ctx.send("❌ Cannot add more than 10,000 points at once!")
         return
 
     clan = get_user_clan(user.id, ctx.guild)
     if not clan:
-        await ctx.send(f"❌ {user.mention} is not in any clan!", delete_after=10)
+        await ctx.send(f"❌ {user.mention} is not in any clan!")
         return
 
     if not can_add_to_clan(clan, amount):
         current = get_clan_points(clan)
         max_points = get_max_clan_points()
-        await ctx.send(f"❌ Cannot add {amount} points. Clan **{clan}** has {current:,}/{max_points:,} points this week!", delete_after=15)
+        await ctx.send(f"❌ Cannot add {amount} points. Clan **{clan}** has {current:,}/{max_points:,} points this week!")
         return
 
     if add_points_to_clan_and_user(user.id, clan, amount, source="admin", channel_id=ctx.channel.id):
@@ -1541,7 +1541,7 @@ async def addpoints(ctx, user: discord.Member, amount: int):
         )
         await ctx.send(embed=embed)
     else:
-        await ctx.send("❌ Failed to add points. Please try again.", delete_after=10)
+        await ctx.send("❌ Failed to add points. Please try again.")
 
 @bot.command()
 @commands.has_permissions(administrator=True)
@@ -1592,7 +1592,7 @@ async def removepoints(ctx, user: discord.Member, amount: int):
         await ctx.send(embed=embed)
     except Exception as e:
         logger.error(f"Error removing points: {e}")
-        await ctx.send("❌ An error occurred while removing points.", delete_after=10)
+        await ctx.send("❌ An error occurred while removing points.")
 
 @tree.command(name="addpoints", description="Manually add points to a user")
 @app_commands.checks.has_permissions(administrator=True)
@@ -2124,11 +2124,11 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         return
     elif isinstance(error, commands.MissingPermissions):
-        await ctx.send("❌ You don't have permission to use this command!", delete_after=10)
+        await ctx.send("❌ You don't have permission to use this command!")
     elif isinstance(error, commands.BadArgument):
-        await ctx.send("❌ Invalid argument provided! Please check the command usage.", delete_after=10)
+        await ctx.send("❌ Invalid argument provided! Please check the command usage.")
     else:
-        await ctx.send("❌ An error occurred while processing the command.", delete_after=10)
+        await ctx.send("❌ An error occurred while processing the command.")
         logger.error(f"Command error: {error}")
 
 @tree.error
