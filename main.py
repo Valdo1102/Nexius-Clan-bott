@@ -741,12 +741,19 @@ async def clantop(ctx, *, clan_name):
                 await ctx.send(f"❌ No members found in clan **{clan_name}**!")
                 return
 
-        msg = f"**🏆 Top Members in {clan_name}:**\n"
+        embed = discord.Embed(
+            title=f"🏆 Top Members in {clan_name}",
+            color=discord.Color.purple()
+        )
+        
+        description = ""
         for i, (uid, points) in enumerate(users, 1):
             user = bot.get_user(uid)
             name = user.display_name if user else f"User {uid}"
-            msg += f"{i}. **{name}** - {points} points\n"
-        await ctx.send(msg)
+            description += f"{i}. **{name}** - {points:,} points\n"
+        
+        embed.description = description
+        await ctx.send(embed=embed)
     except Exception as e:
         logger.error(f"Error in clantop: {e}")
         await ctx.send("❌ An error occurred while fetching clan top members.")
@@ -769,12 +776,19 @@ async def slash_clantop(interaction: discord.Interaction, clan: str):
                 await interaction.response.send_message(f"❌ No members found in clan **{clan}**!", ephemeral=True)
                 return
 
-        msg = f"**🏆 Top Members in {clan}:**\n"
+        embed = discord.Embed(
+            title=f"🏆 Top Members in {clan}",
+            color=discord.Color.purple()
+        )
+        
+        description = ""
         for i, (uid, points) in enumerate(users, 1):
             user = bot.get_user(uid)
             name = user.display_name if user else f"User {uid}"
-            msg += f"{i}. **{name}** - {points} points\n"
-        await interaction.response.send_message(msg)
+            description += f"{i}. **{name}** - {points:,} points\n"
+        
+        embed.description = description
+        await interaction.response.send_message(embed=embed)
     except Exception as e:
         logger.error(f"Error in slash_clantop: {e}")
         if not interaction.response.is_done():
@@ -797,16 +811,28 @@ async def clanmembers(ctx, *, clan_name):
                 await ctx.send(f"❌ No members found in clan **{clan_name}**!")
                 return
 
-        msg = f"**👥 All Members in {clan_name}:**\n"
+        embed = discord.Embed(
+            title=f"👥 All Members in {clan_name}",
+            color=discord.Color.purple()
+        )
+        
+        description = ""
         for uid, points in users:
             user = bot.get_user(uid)
             name = user.display_name if user else f"User {uid}"
-            msg += f"• **{name}** - {points} points\n"
-            if len(msg) > 1800:
-                await ctx.send(msg)
-                msg = ""
-        if msg:
-            await ctx.send(msg)
+            description += f"• **{name}** - {points:,} points\n"
+            if len(description) > 1800:
+                embed.description = description
+                await ctx.send(embed=embed)
+                embed = discord.Embed(
+                    title=f"👥 All Members in {clan_name} (continued)",
+                    color=discord.Color.purple()
+                )
+                description = ""
+        
+        if description:
+            embed.description = description
+            await ctx.send(embed=embed)
     except Exception as e:
         logger.error(f"Error in clanmembers: {e}")
         await ctx.send("❌ An error occurred while fetching clan members.")
@@ -829,12 +855,19 @@ async def slash_clanmembers(interaction: discord.Interaction, clan: str):
                 await interaction.response.send_message(f"❌ No members found in clan **{clan}**!", ephemeral=True)
                 return
 
-        msg = f"**👥 All Members in {clan}:**\n"
+        embed = discord.Embed(
+            title=f"👥 All Members in {clan}",
+            color=discord.Color.purple()
+        )
+        
+        description = ""
         for uid, points in users[:20]:
             user = bot.get_user(uid)
             name = user.display_name if user else f"User {uid}"
-            msg += f"• **{name}** - {points} points\n"
-        await interaction.response.send_message(msg)
+            description += f"• **{name}** - {points:,} points\n"
+        
+        embed.description = description
+        await interaction.response.send_message(embed=embed)
     except Exception as e:
         logger.error(f"Error in slash_clanmembers: {e}")
         if not interaction.response.is_done():
@@ -852,12 +885,20 @@ async def weekly(ctx):
             await ctx.send("No clans yet!")
             return
 
-        msg = "**📈 Weekly Comparison (This Week vs Last Week):**\n"
+        embed = discord.Embed(
+            title="📈 Weekly Comparison",
+            description="This Week vs Last Week Performance",
+            color=discord.Color.purple()
+        )
+        
+        comparison_text = ""
         for name, current, last_week in clans:
             change = current - (last_week or 0)
             change_str = f"+{change}" if change >= 0 else str(change)
-            msg += f"**{name}**: {current} pts ({change_str})\n"
-        await ctx.send(msg)
+            comparison_text += f"**{name}**: {current:,} pts ({change_str})\n"
+        
+        embed.add_field(name="Clan Performance", value=comparison_text, inline=False)
+        await ctx.send(embed=embed)
     except Exception as e:
         logger.error(f"Error in weekly: {e}")
         await ctx.send("❌ An error occurred while fetching weekly data.")
@@ -874,12 +915,20 @@ async def slash_weekly(interaction: discord.Interaction):
             await interaction.response.send_message("No clans yet!")
             return
 
-        msg = "**📈 Weekly Comparison (This Week vs Last Week):**\n"
+        embed = discord.Embed(
+            title="📈 Weekly Comparison",
+            description="This Week vs Last Week Performance",
+            color=discord.Color.purple()
+        )
+        
+        comparison_text = ""
         for name, current, last_week in clans:
             change = current - (last_week or 0)
             change_str = f"+{change}" if change >= 0 else str(change)
-            msg += f"**{name}**: {current} pts ({change_str})\n"
-        await interaction.response.send_message(msg)
+            comparison_text += f"**{name}**: {current:,} pts ({change_str})\n"
+        
+        embed.add_field(name="Clan Performance", value=comparison_text, inline=False)
+        await interaction.response.send_message(embed=embed)
     except Exception as e:
         logger.error(f"Error in slash_weekly: {e}")
         if not interaction.response.is_done():
@@ -950,7 +999,13 @@ async def dailychallenge(ctx):
             return
 
         challenge, reward = row
-        await ctx.send(f"🎯 **Today's Challenge** (+{reward} points):\n{challenge}")
+        embed = discord.Embed(
+            title="🎯 Today's Daily Challenge",
+            description=challenge,
+            color=discord.Color.purple()
+        )
+        embed.add_field(name="Reward", value=f"{reward} points", inline=True)
+        await ctx.send(embed=embed)
     except Exception as e:
         logger.error(f"Error in dailychallenge: {e}")
         await ctx.send("❌ An error occurred while fetching the daily challenge.")
@@ -969,7 +1024,13 @@ async def slash_dailychallenge(interaction: discord.Interaction):
             return
 
         challenge, reward = row
-        await interaction.response.send_message(f"🎯 **Today's Challenge** (+{reward} points):\n{challenge}")
+        embed = discord.Embed(
+            title="🎯 Today's Daily Challenge",
+            description=challenge,
+            color=discord.Color.purple()
+        )
+        embed.add_field(name="Reward", value=f"{reward} points", inline=True)
+        await interaction.response.send_message(embed=embed)
     except Exception as e:
         logger.error(f"Error in slash_dailychallenge: {e}")
         if not interaction.response.is_done():
@@ -1450,7 +1511,12 @@ async def addpoints(ctx, user: discord.Member, amount: int):
         return
 
     if add_points_to_clan_and_user(user.id, clan, amount, source="admin", channel_id=ctx.channel.id):
-        await ctx.send(f"✅ Successfully added **{amount}** points to {user.mention}!")
+        embed = discord.Embed(
+            title="✅ Points Added",
+            description=f"Successfully added **{amount:,}** points to {user.mention}!",
+            color=discord.Color.green()
+        )
+        await ctx.send(embed=embed)
     else:
         await ctx.send("❌ Failed to add points. Please try again.")
 
@@ -1495,7 +1561,12 @@ async def removepoints(ctx, user: discord.Member, amount: int):
                      (user.id, -amount, "admin_removal", datetime.utcnow().isoformat(), ctx.channel.id))
             conn.commit()
 
-        await ctx.send(f"✅ Successfully removed **{amount}** points from {user.mention}!")
+        embed = discord.Embed(
+            title="✅ Points Removed",
+            description=f"Successfully removed **{amount:,}** points from {user.mention}!",
+            color=discord.Color.green()
+        )
+        await ctx.send(embed=embed)
     except Exception as e:
         logger.error(f"Error removing points: {e}")
         await ctx.send("❌ An error occurred while removing points.")
@@ -1523,7 +1594,12 @@ async def slash_addpoints(interaction: discord.Interaction, user: discord.Member
         return
 
     if add_points_to_clan_and_user(user.id, clan, amount, source="admin", channel_id=interaction.channel_id):
-        await interaction.response.send_message(f"✅ Successfully added **{amount}** points to {user.mention}!")
+        embed = discord.Embed(
+            title="✅ Points Added",
+            description=f"Successfully added **{amount:,}** points to {user.mention}!",
+            color=discord.Color.green()
+        )
+        await interaction.response.send_message(embed=embed)
     else:
         await interaction.response.send_message("❌ Failed to add points. Please try again.", ephemeral=True)
 
@@ -1569,7 +1645,12 @@ async def slash_removepoints(interaction: discord.Interaction, user: discord.Mem
                      (user.id, -amount, "admin_removal", datetime.utcnow().isoformat(), interaction.channel_id))
             conn.commit()
 
-        await interaction.response.send_message(f"✅ Successfully removed **{amount}** points from {user.mention}!")
+        embed = discord.Embed(
+            title="✅ Points Removed",
+            description=f"Successfully removed **{amount:,}** points from {user.mention}!",
+            color=discord.Color.green()
+        )
+        await interaction.response.send_message(embed=embed)
     except Exception as e:
         logger.error(f"Error removing points: {e}")
         if not interaction.response.is_done():
