@@ -801,8 +801,7 @@ async def clanmembers(ctx, *, clan_name):
             c = conn.cursor()
             c.execute("SELECT name FROM clans WHERE name=?", (clan_name,))
             if not c.fetchone():
-                await ctx.send(```python
-f"❌ Clan **{clan_name}** does not exist!")
+                await ctx.send(f"❌ Clan **{clan_name}** does not exist!")
                 return
 
             c.execute("SELECT user_id, points FROM users WHERE clan_name=? ORDER BY points DESC", (clan_name,))
@@ -1739,7 +1738,7 @@ async def slash_setbonusrole(interaction: discord.Interaction, role: str):
             c = conn.cursor()
             c.execute("REPLACE INTO config (key, value) VALUES (?, ?)", ("bonus_role", role))
             conn.commit()
-        await interaction.response.send_message(f"✅ Bonus role set to `{role}` (+5 points per message)")
+        await interaction.response.send_message(f"✅ Bonus role set to `{role}` (+5 points per message)", ephemeral=True)
     except Exception as e:
         logger.error(f"Error setting bonus role: {e}")
         await interaction.response.send_message("❌ An error occurred while setting the bonus role.", ephemeral=True)
@@ -1765,7 +1764,7 @@ async def slash_addwhitelistrole(interaction: discord.Interaction, role: str):
             c = conn.cursor()
             c.execute("INSERT INTO config (key, value) VALUES (?, ?)", (key, role))
             conn.commit()
-        await interaction.response.send_message(f"✅ Role `{role}` added to whitelist! Members with this role can now assign clan roles.")
+        await interaction.response.send_message(f"✅ Role `{role}` added to whitelist! Members with this role can now assign clan roles.", ephemeral=True)
     except Exception as e:
         logger.error(f"Error adding whitelist role: {e}")
         await interaction.response.send_message("❌ An error occurred while adding the whitelist role.", ephemeral=True)
@@ -1780,7 +1779,7 @@ async def slash_removewhitelistrole(interaction: discord.Interaction, role: str)
             c.execute("DELETE FROM config WHERE key LIKE 'whitelist_role_%' AND value=?", (role,))
             if c.rowcount > 0:
                 conn.commit()
-                await interaction.response.send_message(f"✅ Role `{role}` removed from whitelist!")
+                await interaction.response.send_message(f"✅ Role `{role}` removed from whitelist!", ephemeral=True)
             else:
                 await interaction.response.send_message(f"❌ Role `{role}` was not in the whitelist!", ephemeral=True)
     except Exception as e:
@@ -2140,7 +2139,7 @@ async def setweeklycap(ctx, clan: str, cap: int):
         await ctx.send(f"✅ Weekly cap for {clan} set to {cap} points!")
     except Exception as e:
         logger.error(f"Error setting weekly cap: {e}")
-        await ctx.send("❌ An error occurred while setting the weekly cap.", ephemeral=True)
+        await ctx.send("❌ An error occurred while setting the weekly cap.")
 
 @tree.command(name="setweeklycap", description="Set weekly points cap for a clan")
 @app_commands.checks.has_permissions(administrator=True)
@@ -2148,7 +2147,7 @@ async def setweeklycap(ctx, clan: str, cap: int):
 async def slash_setweeklycap(interaction: discord.Interaction, clan: str, cap: int):
     """Set weekly points cap for a clan"""
     if cap < 100 or cap > 20000:
-        await interaction.response.send_message("❌ Weekly cap must be between 100 and 20000 points!")
+        await interaction.response.send_message("❌ Weekly cap must be between 100 and 20000 points!", ephemeral=True)
         return
 
     try:
@@ -2178,7 +2177,7 @@ async def setchannelmultiplier(ctx, channel: discord.TextChannel, multiplier: fl
         await ctx.send(f"✅ Point multiplier for {channel.mention} set to {multiplier}x!")
     except Exception as e:
         logger.error(f"Error setting channel multiplier: {e}")
-        await ctx.send("❌ An error occurred while setting the channel multiplier.", ephemeral=True)
+        await ctx.send("❌ An error occurred while setting the channel multiplier.")
 
 @bot.command()
 @commands.has_permissions(administrator=True)
@@ -2221,7 +2220,8 @@ async def backup(ctx):
 @bot.command()
 @commands.has_permissions(administrator=True)
 async def analytics(ctx, days: int = 7):
-    """Show analytics report```
+    """Show analytics report"""
+    ```text
     if days < 1 or days > 30:
         await ctx.send("❌ Days must be between 1 and 30!")
         return
