@@ -745,13 +745,13 @@ async def clantop(ctx, *, clan_name):
             title=f"🏆 Top Members in {clan_name}",
             color=discord.Color.purple()
         )
-        
+
         description = ""
         for i, (uid, points) in enumerate(users, 1):
             user = bot.get_user(uid)
             name = user.display_name if user else f"User {uid}"
             description += f"{i}. **{name}** - {points:,} points\n"
-        
+
         embed.description = description
         await ctx.send(embed=embed)
     except Exception as e:
@@ -780,13 +780,13 @@ async def slash_clantop(interaction: discord.Interaction, clan: str):
             title=f"🏆 Top Members in {clan}",
             color=discord.Color.purple()
         )
-        
+
         description = ""
         for i, (uid, points) in enumerate(users, 1):
             user = bot.get_user(uid)
             name = user.display_name if user else f"User {uid}"
             description += f"{i}. **{name}** - {points:,} points\n"
-        
+
         embed.description = description
         await interaction.response.send_message(embed=embed)
     except Exception as e:
@@ -801,7 +801,8 @@ async def clanmembers(ctx, *, clan_name):
             c = conn.cursor()
             c.execute("SELECT name FROM clans WHERE name=?", (clan_name,))
             if not c.fetchone():
-                await ctx.send(f"❌ Clan **{clan_name}** does not exist!")
+                await ctx.send(```python
+f"❌ Clan **{clan_name}** does not exist!")
                 return
 
             c.execute("SELECT user_id, points FROM users WHERE clan_name=? ORDER BY points DESC", (clan_name,))
@@ -815,7 +816,7 @@ async def clanmembers(ctx, *, clan_name):
             title=f"👥 All Members in {clan_name}",
             color=discord.Color.purple()
         )
-        
+
         description = ""
         for uid, points in users:
             user = bot.get_user(uid)
@@ -829,7 +830,7 @@ async def clanmembers(ctx, *, clan_name):
                     color=discord.Color.purple()
                 )
                 description = ""
-        
+
         if description:
             embed.description = description
             await ctx.send(embed=embed)
@@ -859,13 +860,13 @@ async def slash_clanmembers(interaction: discord.Interaction, clan: str):
             title=f"👥 All Members in {clan}",
             color=discord.Color.purple()
         )
-        
+
         description = ""
         for uid, points in users[:20]:
             user = bot.get_user(uid)
             name = user.display_name if user else f"User {uid}"
             description += f"• **{name}** - {points:,} points\n"
-        
+
         embed.description = description
         await interaction.response.send_message(embed=embed)
     except Exception as e:
@@ -890,13 +891,13 @@ async def weekly(ctx):
             description="This Week vs Last Week Performance",
             color=discord.Color.purple()
         )
-        
+
         comparison_text = ""
         for name, current, last_week in clans:
             change = current - (last_week or 0)
             change_str = f"+{change}" if change >= 0 else str(change)
             comparison_text += f"**{name}**: {current:,} pts ({change_str})\n"
-        
+
         embed.add_field(name="Clan Performance", value=comparison_text, inline=False)
         await ctx.send(embed=embed)
     except Exception as e:
@@ -920,13 +921,13 @@ async def slash_weekly(interaction: discord.Interaction):
             description="This Week vs Last Week Performance",
             color=discord.Color.purple()
         )
-        
+
         comparison_text = ""
         for name, current, last_week in clans:
             change = current - (last_week or 0)
             change_str = f"+{change}" if change >= 0 else str(change)
             comparison_text += f"**{name}**: {current:,} pts ({change_str})\n"
-        
+
         embed.add_field(name="Clan Performance", value=comparison_text, inline=False)
         await interaction.response.send_message(embed=embed)
     except Exception as e:
@@ -1653,8 +1654,7 @@ async def slash_removepoints(interaction: discord.Interaction, user: discord.Mem
         await interaction.response.send_message(embed=embed)
     except Exception as e:
         logger.error(f"Error removing points: {e}")
-        if not interaction.response.is_done():
-            await interaction.response.send_message("❌ An error occurred while removing points.", ephemeral=True)
+        await interaction.response.send_message("❌ An error occurred while removing points.", ephemeral=True)
 
 @bot.command()
 @commands.has_permissions(administrator=True)
@@ -2135,7 +2135,7 @@ async def setweeklycap(ctx, clan: str, cap: int):
     try:
         with get_db_connection() as conn:
             c = conn.cursor()
-            c.execute("UPDATE clans SET max_points = ? WHERE name = ?", (cap, clan))
+            c.execute("UPDATE clans SET weekly_cap = ? WHERE name = ?", (cap, clan))
             conn.commit()
         await ctx.send(f"✅ Weekly cap for {clan} set to {cap} points!")
     except Exception as e:
@@ -2154,7 +2154,7 @@ async def slash_setweeklycap(interaction: discord.Interaction, clan: str, cap: i
     try:
         with get_db_connection() as conn:
             c = conn.cursor()
-            c.execute("UPDATE clans SET max_points = ? WHERE name = ?", (cap, clan))
+            c.execute("UPDATE clans SET weekly_cap = ? WHERE name = ?", (cap, clan))
             conn.commit()
         await interaction.response.send_message(f"✅ Weekly cap for {clan} set to {cap} points!")
     except Exception as e:
@@ -2221,7 +2221,7 @@ async def backup(ctx):
 @bot.command()
 @commands.has_permissions(administrator=True)
 async def analytics(ctx, days: int = 7):
-    """Show analytics report"""
+    """Show analytics report```
     if days < 1 or days > 30:
         await ctx.send("❌ Days must be between 1 and 30!")
         return
