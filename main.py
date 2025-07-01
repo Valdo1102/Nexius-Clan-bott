@@ -2221,7 +2221,6 @@ async def backup(ctx):
 @commands.has_permissions(administrator=True)
 async def analytics(ctx, days: int = 7):
     """Show analytics report"""
-    ```text
     if days < 1 or days > 30:
         await ctx.send("❌ Days must be between 1 and 30!")
         return
@@ -2229,38 +2228,44 @@ async def analytics(ctx, days: int = 7):
     try:
         with get_db_connection() as conn:
             c = conn.cursor()
-
-            # Get analytics for specified days
-            # This query is illustrative; you'd need an 'analytics' table
-            # populated by a background task.
-            c.execute("""
-                SELECT date('now', '-{} days'), 100, 100, 100, 'Clan A'
-            """.format(days)) #example data
-
-            analytics_data = c.fetchall()
-
-            if not analytics_data:
-                await ctx.send("❌ No analytics data available for the specified period!")
-                return
-
-            # Calculate totals
-            total_msgs = 100 #example values
-            total_points = 100 #example values
-            avg_users = 100 #example values
-
+            
+            # Get total messages and points from logs in the last X days
+            cutoff_date = (datetime.utcnow() - timedelta(days=days)).isoformat()
+            c.execute("SELECT COUNT(*), SUM(amount) FROM logs WHERE timestamp > ? AND amount > 0", (cutoff_date,))
+            result = c.fetchone()
+            total_msgs = result[0] or 0
+            total_points = result[1] or 0
+            
+            # Get unique active users in period
+            c.execute("SELECT COUNT(DISTINCT user_id) FROM logs WHERE timestamp > ?", (cutoff_date,))
+            active_users = c.fetchone()[0] or 0
+            
             embed = discord.Embed(
                 title=f"📊 Analytics Report ({days} days)",
                 color=discord.Color.blue()
             )
 
-            embed.add_field(name="📨 Total Messages",value=f"{total_msgs:,}", inline=True)
+            embed.add_field(name="📨 Point Events", value=f"{total_msgs:,}", inline=True)
             embed.add_field(name="🏆 Total Points Awarded", value=f"{total_points:,}", inline=True)
-            embed.add_field(name="👥 Avg Daily Active Users", value=f"{avg_users}", inline=True)
+            embed.add_field(name="👥 Active Users", value=f"{active_users}", inline=True)
 
-            # Recent activity
-            recent_data = "some data"
-
-            embed.add_field(name="📈 Recent Activity", value=recent_data, inline=False)
+            # Get top clans in this period
+            c.execute("""
+                SELECT u.clan_name, SUM(l.amount) as period_points 
+                FROM logs l 
+                JOIN users u ON l.user_id = u.user_id 
+                WHERE l.timestamp > ? AND l.amount > 0 AND u.clan_name IS NOT NULL
+                GROUP BY u.clan_name 
+                ORDER BY period_points DESC 
+                LIMIT 3
+            """, (cutoff_date,))
+            
+            top_clans = c.fetchall()
+            if top_clans:
+                recent_data = ""
+                for i, (clan, points) in enumerate(top_clans, 1):
+                    recent_data += f"{i}. **{clan}** - {points:,} pts\n"
+                embed.add_field(name="📈 Top Clans This Period", value=recent_data, inline=False)
 
             await ctx.send(embed=embed)
 
