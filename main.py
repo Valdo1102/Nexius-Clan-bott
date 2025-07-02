@@ -30,6 +30,8 @@ def invalidate_clan_cache(clan_name):
 
 import os
 import logging
+from flask import Flask
+import threading
 
 # Configure logging
 logging.basicConfig(
@@ -2378,4 +2380,46 @@ async def botreport(ctx):
 
     await ctx.send(embed=embed)
 
-bot.run(TOKEN)
+# Create Flask web server
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return """
+    <h1>🤖 Discord Clan Bot is Running!</h1>
+    <p>Your Discord bot is active and ready to serve your server.</p>
+    <p><strong>Bot Status:</strong> Online ✅</p>
+    <p><strong>Features:</strong> Clan system, points, leaderboards, achievements</p>
+    """
+
+@app.route('/status')
+def status():
+    try:
+        guild_count = len(bot.guilds)
+        return {
+            "status": "online",
+            "guilds": guild_count,
+            "bot_user": str(bot.user) if bot.user else "Not ready"
+        }
+    except:
+        return {"status": "starting", "message": "Bot is initializing..."}
+
+@app.route('/health')
+def health():
+    return {"status": "healthy", "message": "Bot web server is running"}
+
+def run_bot():
+    """Run the Discord bot"""
+    bot.run(TOKEN)
+
+def run_web_server():
+    """Run the Flask web server"""
+    app.run(host='0.0.0.0', port=5000, debug=False)
+
+if __name__ == "__main__":
+    # Start bot in a separate thread
+    bot_thread = threading.Thread(target=run_bot, daemon=True)
+    bot_thread.start()
+    
+    # Start web server in main thread
+    run_web_server()
