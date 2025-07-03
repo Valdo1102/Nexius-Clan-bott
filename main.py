@@ -2432,13 +2432,13 @@ def run_web_server():
     app.run(host='0.0.0.0', port=5000, debug=False)
 
 if __name__ == "__main__":
-    # Start bot in a separate thread
-    bot_thread = threading.Thread(target=run_bot, daemon=True)
-    bot_thread.start()
+    # Start web server in a separate thread
+    web_thread = threading.Thread(target=run_web_server, daemon=True)
+    web_thread.start()
     
-    # Give the bot a moment to start
+    # Give the web server a moment to start
     import time
     time.sleep(2)
     
-    # Start web server in main thread
-    run_web_server()
+    # Start bot in main thread (better for signal handling)
+    run_bot()
