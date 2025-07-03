@@ -47,7 +47,9 @@ logger = logging.getLogger(__name__)
 TOKEN = os.getenv("TOKEN")
 if not TOKEN:
     logger.error("TOKEN environment variable not set!")
-    exit(1)
+    logger.error("Please set your Discord bot token in the Secrets tab")
+    # Don't exit immediately, let the web server start for debugging
+    TOKEN = None
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -2395,14 +2397,20 @@ def home():
 @app.route('/status')
 def status():
     try:
-        guild_count = len(bot.guilds)
-        return {
-            "status": "online",
-            "guilds": guild_count,
-            "bot_user": str(bot.user) if bot.user else "Not ready"
-        }
-    except:
-        return {"status": "starting", "message": "Bot is initializing..."}
+        if not TOKEN:
+            return {"status": "error", "message": "No Discord token configured"}
+        
+        if bot.is_ready():
+            guild_count = len(bot.guilds)
+            return {
+                "status": "online",
+                "guilds": guild_count,
+                "bot_user": str(bot.user)
+            }
+        else:
+            return {"status": "starting", "message": "Bot is initializing..."}
+    except Exception as e:
+        return {"status": "error", "message": f"Bot error: {str(e)}"}
 
 @app.route('/health')
 def health():
@@ -2410,7 +2418,14 @@ def health():
 
 def run_bot():
     """Run the Discord bot"""
-    bot.run(TOKEN)
+    if TOKEN:
+        try:
+            logger.info("Starting Discord bot...")
+            bot.run(TOKEN)
+        except Exception as e:
+            logger.error(f"Bot failed to start: {e}")
+    else:
+        logger.error("Cannot start bot - no token provided")
 
 def run_web_server():
     """Run the Flask web server"""
@@ -2420,6 +2435,10 @@ if __name__ == "__main__":
     # Start bot in a separate thread
     bot_thread = threading.Thread(target=run_bot, daemon=True)
     bot_thread.start()
+    
+    # Give the bot a moment to start
+    import time
+    time.sleep(2)
     
     # Start web server in main thread
     run_web_server()

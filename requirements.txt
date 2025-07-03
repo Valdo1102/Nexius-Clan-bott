@@ -1,2 +1,4 @@
 discord-py>=2.5.2
 flask>=3.0.0
+discord.py
+flask
